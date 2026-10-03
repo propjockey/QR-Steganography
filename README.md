@@ -2,19 +2,30 @@
 
 # QR Steganography from <img src="https://github.com/user-attachments/assets/87119fb5-c39d-429a-9bfd-424f0e100720" alt="" width="30px"> PropJockey
 
-Hide data in QR Codes. Hide QR Codes in QR Codes. Hide several. Hide both.
+## Hide data in QR Codes. Hide QR Codes in QR Codes. Hide several. Hide both.
 
 TODO - CTF
 
-Stamp a deliberate XOR wound into the final matrix that could be reversed and recovered - and could also be a QR Code.
+---
 
-TODO - images from my test
+## Stamp a deliberate XOR wound into the final matrix that could be reversed and recovered - and could also be a QR Code.
 
-Or just draw pictures in them.
+| Raw Photo | Raw Captured Matrix | Cryptographically Healed (RS) QR | XOR to reveal the wound |
+| :---: | :---: | :---: | :---: |
+| <img width="150" height="150" alt="Photo of me holding up a phone with a QR Code which is a thumbnail of the source image that the next 3 QR Code images were extracted from" src="https://github.com/user-attachments/assets/c53265f5-0073-4d33-9d55-56eb6566c86f" /> | <img width="256" height="256" alt="raw-matrix" src="https://github.com/user-attachments/assets/9153c57e-dfc4-4a80-b636-8474bf4c5289" /> | <img width="256" height="256" alt="healed-matrix" src="https://github.com/user-attachments/assets/c99a3fe6-3d2e-45e6-9b30-3ffee0e7e407" /> | <img width="256" height="256" alt="matrix-wounds" src="https://github.com/user-attachments/assets/e39f2266-eba8-411b-a535-9b8e621972d4" /> |
 
-TODO - show my Neo example
+---
 
-Real QR Codes, cryptographically baked into the data and error correction blocks.
+## Or just draw pictures in them.
+
+<img width="512" height="512" alt="Neo from the Matrix holding his hand up to stop bullets (alignment patterns) mid air in an actual QR Code." src="https://github.com/user-attachments/assets/14150b80-86a7-47fb-a635-d3e48055e915" />
+
+
+**Real QR Codes, cryptographically baked into the data and error correction blocks.**
+
+---
+
+Companion app to catch this stuff in the act is in progress.
 
 ---
 
@@ -22,6 +33,11 @@ Real QR Codes, cryptographically baked into the data and error correction blocks
 
 v1.0.0 - Oct 3rd, 2026:
 * Initial release
+
+## Legal
+
+> [!NOTE]
+> QR Code is a registered trademark of DENSO WAVE INCORPORATED
 
 ---
 

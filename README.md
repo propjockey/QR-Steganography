@@ -2,6 +2,8 @@
 
 # QR Steganography from <img src="https://github.com/user-attachments/assets/87119fb5-c39d-429a-9bfd-424f0e100720" alt="" width="30px"> PropJockey
 
+https://propjockey.github.io/QR-Steganography/
+
 ## Hide data in QR Codes. Hide QR Codes in QR Codes. Hide several. Hide both.
 
 TODO - CTF

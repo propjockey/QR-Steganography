@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>QR Steganography by Jane Ori - propjockey.io</title>
+  <script src="./nayuki-dist.js"></script>
+  <link media="all" rel="stylesheet" href="./index.css">
+</head>
+<body>
+  <div class="sidebar" id="panel-generator">
+    <h1>QR Steganography <a href="https://propjockey.io/">PropJockey.io</a></h1>
+
+    <div class="control-group">
+      <label class="lbl-accent">Structured Append</label>
+      <div class="row" style="margin-bottom: 5px;">
+        <label style="color:var(--text); justify-content: flex-start; gap: 10px;">
+          <input type="checkbox" id="ctrl-sa-enable"> Enable
+        </label>
+      </div>
+      <div class="row">
+        <div><label>Seq (0-15)</label><input type="number" id="ctrl-sa-seq" min="0" max="15" value="0"></div>
+        <div><label>Total (1-16)</label><input type="number" id="ctrl-sa-tot" min="1" max="16" value="1"></div>
+        <div><label>Parity</label><input type="number" id="ctrl-sa-par" min="0" max="255" value="0"></div>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label>Payload Text & Mode</label>
+      <div class="row">
+        <input type="text" id="ctrl-text" value="" style="flex: 2;">
+        <select id="ctrl-text-mode" style="flex: 1;">
+          <option value="auto" selected>Auto</option>
+          <option value="byte">Byte</option>
+          <option value="alphanumeric">Alphanum</option>
+          <option value="numeric">Numeric</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label style="color:var(--neon-gold)">Padding Prefix ASCII</label>
+      <input type="text" id="ctrl-pad-start" placeholder="e.g. ily Quorra kitty">
+      <label style="color:var(--neon-gold); margin-top: 5px;">Padding Suffix ASCII</label>
+      <input type="text" id="ctrl-pad-end" placeholder="e.g. PropJockey.io">
+    </div>
+
+    <div class="row">
+      <div class="control-group"><label>Version</label><select id="ctrl-version"></select></div>
+      <div class="control-group"><label>EC Level</label>
+        <select id="ctrl-ecl">
+          <option value="LOW" selected>L</option><option value="MEDIUM">M</option>
+          <option value="QUARTILE">Q</option><option value="HIGH">H</option>
+        </select>
+      </div>
+      <div class="control-group"><label>Mask</label>
+        <select id="ctrl-mask">
+          <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option>
+          <option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option>
+        </select>
+      </div>
+    </div>
+
+    <button id="btn-open-stencil" class="btn-special">Open Image Stencil</button>
+    <button id="btn-open-mask" class="btn-mask">Open Mask Stencil</button>
+    <div class="row" style="margin-top: 5px;">
+      <button id="btn-save-qr" class="btn-qr" style="margin-top: 0;" title="Save current QR to Local Storage">Save QR Matrix</button>
+      <button id="btn-open-qr-stencil" class="btn-qr" style="margin-top: 0;">Open Saved QR</button>
+    </div>
+
+    <button id="btn-whiteout">Clear Padding (Whiteout)</button>
+    <button id="btn-download" class="btn-download">Download Full Image</button>
+
+    <div class="legend">
+      <div class="legend-item"><div class="swatch" style="background: #b30000"></div> QR Bones</div>
+      <div class="legend-item"><div class="swatch" style="background: #0044cc"></div> Text Payload</div>
+      <div class="legend-item"><div class="swatch" style="background: #ff8c00"></div> ASCII Padding</div>
+      <div class="legend-item"><div class="swatch" style="background: #008800"></div> Art Padding</div>
+      <div class="legend-item"><div class="swatch" style="background: #cc6600"></div> Error Correction</div>
+    </div>
+  </div>
+
+  <div class="sidebar" id="panel-stencil">
+    <h2 class="title-img">Image Stencil</h2>
+
+    <div class="control-group">
+      <label>Upload Image</label>
+      <input type="file" id="ctrl-file" accept="image/*">
+    </div>
+
+    <div class="row">
+      <label style="color:var(--text); justify-content: flex-start; gap: 10px;">
+        <input type="checkbox" id="ctrl-invert-stencil"> Invert Source (White = Paint)
+      </label>
+    </div>
+
+    <div class="control-group">
+      <label>Scale <span id="lbl-scale">1.00</span></label>
+      <input type="range" id="ctrl-scale" min="0.05" max="5" step="0.05" value="1">
+    </div>
+
+    <div class="control-group">
+      <label>X Offset <span id="lbl-x">0</span></label>
+      <input type="range" id="ctrl-x" min="-800" max="800" step="1" value="0">
+    </div>
+
+    <div class="control-group">
+      <label>Y Offset <span id="lbl-y">0</span></label>
+      <input type="range" id="ctrl-y" min="-800" max="800" step="1" value="0">
+    </div>
+
+    <div class="control-group">
+      <label>Rotation</label>
+      <select id="ctrl-rot">
+        <option value="0" selected>0°</option>
+        <option value="90">90°</option>
+        <option value="180">180°</option>
+        <option value="270">270°</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label>B&W Threshold <span id="lbl-thresh">128</span></label>
+      <input type="range" id="ctrl-thresh" min="0" max="255" step="1" value="128">
+    </div>
+
+    <div class="control-group">
+      <label>Write Mode</label>
+      <select id="ctrl-blend">
+        <option value="draw" selected>Draw (Force Dark)</option>
+        <option value="erase">Erase (Force Light)</option>
+        <option value="xor">Invert (XOR)</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label>Wound Target</label>
+      <select id="ctrl-img-wound">
+        <option value="none" selected>None (Padding Only)</option>
+        <option value="structural">Structural (Bones)</option>
+        <option value="data">Data & EC</option>
+        <option value="both">Both (Everything)</option>
+      </select>
+    </div>
+
+    <button id="btn-commit" class="btn-special">Commit to Matrix</button>
+    <button id="btn-download-stencil" class="btn-download">Wound</button>
+    <button id="btn-cancel-stencil" class="btn-neutral">Cancel / Back</button>
+  </div>
+
+  <div class="sidebar" id="panel-mask">
+    <h2 class="title-mask">Mask Stencil</h2>
+
+    <div class="control-group">
+      <label>Mask Algorithm</label>
+      <select id="ctrl-mask-algo">
+        <option value="0">0: (x+y)%2</option><option value="1">1: y%2</option>
+        <option value="2">2: x%3</option><option value="3">3: (x+y)%3</option>
+        <option value="4">4: (y/2 + x/3)%2</option><option value="5">5: (xy)%2 + (xy)%3</option>
+        <option value="6">6: ((xy)%2 + (xy)%3)%2</option><option value="7">7: ((x+y)%2 + (xy)%3)%2</option>
+      </select>
+    </div>
+
+    <div class="row">
+      <div class="control-group"><label>X Pos</label><input type="number" id="ctrl-mx" value="10"></div>
+      <div class="control-group"><label>Y Pos</label><input type="number" id="ctrl-my" value="10"></div>
+    </div>
+
+    <div class="row">
+      <div class="control-group"><label>Width</label><input type="number" id="ctrl-mw" value="30"></div>
+      <div class="control-group"><label>Height</label><input type="number" id="ctrl-mh" value="30"></div>
+    </div>
+
+    <div class="control-group">
+      <label>Write Mode</label>
+      <select id="ctrl-mblend">
+        <option value="draw" selected>Draw (Force Match Mask)</option>
+        <option value="erase">Erase (Force Invert Mask)</option>
+        <option value="xor">Invert (XOR)</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label>Wound Target</label>
+      <select id="ctrl-mask-wound">
+        <option value="none" selected>None (Padding Only)</option>
+        <option value="structural">Structural (Bones)</option>
+        <option value="data">Data & EC</option>
+        <option value="both">Both (Everything)</option>
+      </select>
+    </div>
+
+    <button id="btn-commit-mask" class="btn-mask">Commit to Matrix</button>
+    <button id="btn-download-mask" class="btn-download">Wound</button>
+    <button id="btn-cancel-mask" class="btn-neutral">Cancel / Back</button>
+  </div>
+
+  <div class="sidebar" id="panel-qr-stencil">
+    <h2 class="title-qr">Saved QR Stencil</h2>
+
+    <div class="control-group">
+      <label>Select Saved Matrix</label>
+      <select id="ctrl-qr-select"></select>
+    </div>
+
+    <div class="row">
+      <label style="color:var(--text); justify-content: flex-start; gap: 10px;">
+        <input type="checkbox" id="ctrl-invert-qr"> Invert Source (White = Paint)
+      </label>
+    </div>
+
+    <div class="control-group">
+      <label>Integer Scale <span id="lbl-qscale">1</span></label>
+      <input type="range" id="ctrl-qscale" min="1" max="10" step="1" value="1">
+    </div>
+
+    <div class="control-group">
+      <label>X Offset (Modules) <span id="lbl-qx">0</span></label>
+      <input type="range" id="ctrl-qx" min="-200" max="200" step="1" value="0">
+    </div>
+
+    <div class="control-group">
+      <label>Y Offset (Modules) <span id="lbl-qy">0</span></label>
+      <input type="range" id="ctrl-qy" min="-200" max="200" step="1" value="0">
+    </div>
+
+    <div class="control-group">
+      <label>Rotation</label>
+      <select id="ctrl-qrot">
+        <option value="0" selected>0°</option>
+        <option value="90">90°</option>
+        <option value="180">180°</option>
+        <option value="270">270°</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label>Write Mode</label>
+      <select id="ctrl-qblend">
+        <option value="draw" selected>Draw (Force Dark)</option>
+        <option value="erase">Erase (Force Light)</option>
+        <option value="xor">Invert (XOR)</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label>Wound Target</label>
+      <select id="ctrl-qr-wound">
+        <option value="none" selected>None (Padding Only)</option>
+        <option value="structural">Structural (Bones)</option>
+        <option value="data">Data & EC</option>
+        <option value="both">Both (Everything)</option>
+      </select>
+    </div>
+
+    <button id="btn-commit-qr" class="btn-qr">Commit to Matrix</button>
+    <button id="btn-download-qr" class="btn-download">Wound</button>
+    <button id="btn-cancel-qr" class="btn-neutral">Cancel / Back</button>
+  </div>
+
+  <div id="canvas-wrapper">
+    <canvas id="qr-canvas"></canvas>
+    <canvas id="stencil-canvas"></canvas>
+  </div>
+
+  <script src="./index.js"></script>
+</body>
+</html>
